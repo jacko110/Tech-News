@@ -12,48 +12,46 @@ import reducer from './reducer'
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?'
 
 const initialState = {
-  isLoading:true,
-  hits:[],
-  query:'react',
-  page:0,
-  nbPages:0,
-
+  isLoading: true,
+  hits: [],
+  query: 'react',
+  page: 0,
+  nbPages: 0,
 }
 
 const AppContext = React.createContext()
 
 const AppProvider = ({ children }) => {
   const [state,dispatch]= useReducer(reducer,initialState)
-  console.log(state);
 
   const fetchStories = async (url)=>{
     dispatch({type:SET_LOADING})
     try {
       const res = await fetch(url)
       const data = await res.json()
-      console.log(data);
-      dispatch({type:SET_STORIES,payload:{hits:data.hits,nbHits:data.nbHits}})
+      // console.log(data);
+      dispatch({type:SET_STORIES,payload:{hits:data.hits,nbPages:data.nbPages}})
       
     } catch (error) {
       console.log(error);
     }
   }
 
-  const removeStory = (id)=>{
-    dispatch({type:REMOVE_STORY,payload:id})
+  const removeStory = (id) => {
+    dispatch({ type: REMOVE_STORY, payload: id })
   }
 
-  const handleSearch =(query)=>{
-    dispatch({type:HANDLE_SEARCH,payload:query})
+  const handleSearch = (query) => {
+    dispatch({ type: HANDLE_SEARCH, payload: query })
   }
 
-  const handlePage = (value)=>{
-    dispatch({type:HANDLE_PAGE,payload: value})
+  const handlePage = (value) => {
+    dispatch({ type: HANDLE_PAGE, payload: value })
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchStories(`${API_ENDPOINT}query=${state.query}&page=${state.page}`)
-  },[state.query,state.page])
+  }, [state.query, state.page])
 
   return <AppContext.Provider value={{...state,removeStory,handleSearch,handlePage}}>{children}</AppContext.Provider>
 }
